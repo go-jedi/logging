@@ -9,7 +9,15 @@ func simple() {
 	logger.Info("Hello, World!")
 
 	// logs in stdout and file format json
-	logger = NewLogger(WithIsJSON(true), WithSetFile(true))
+	logger = NewLogger(
+		WithIsJSON(true),
+		WithSetFile(true, LogFile{
+			Filename:   "logs/app.log",
+			MaxSize:    10,
+			MaxBackups: 3,
+			MaxAge:     7,
+		}),
+	)
 	logger.Info(
 		"hello world",
 		IntAttr("id", 1),
@@ -17,7 +25,12 @@ func simple() {
 	)
 
 	// logs in stdout and file format text
-	logger = NewLogger(WithIsJSON(false), WithSetFile(true))
+	logger = NewLogger(WithIsJSON(false), WithSetFile(true, LogFile{
+		Filename:   "logs/app.log",
+		MaxSize:    10,
+		MaxBackups: 3,
+		MaxAge:     7,
+	}))
 	logger.Info(
 		"hello world",
 		IntAttr("id", 1),

@@ -23,6 +23,7 @@ func NewLogger(opts ...LoggerOption) *Logger {
 		AddSource:  defaultAddSource,
 		IsJSON:     defaultIsJSON,
 		SetFile:    defaultSetFile,
+		LogFile:    LogFile{},
 		SetDefault: defaultSetDefault,
 	}
 
@@ -42,17 +43,13 @@ func NewLogger(opts ...LoggerOption) *Logger {
 	}
 
 	if config.SetFile {
-		maxSize := 10
-		maxBackups := 3
-		maxAge := 7
-
 		mw := io.MultiWriter(
 			os.Stdout,
 			&lumberjack.Logger{
-				Filename:   "logs/app.log",
-				MaxSize:    maxSize, // megabytes
-				MaxBackups: maxBackups,
-				MaxAge:     maxAge, // days
+				Filename:   config.LogFile.Filename, // path to file
+				MaxSize:    config.LogFile.MaxSize,  // megabytes
+				MaxBackups: config.LogFile.MaxBackups,
+				MaxAge:     config.LogFile.MaxAge, // days
 			},
 		)
 
@@ -72,18 +69,29 @@ func NewLogger(opts ...LoggerOption) *Logger {
 	return logger
 }
 
+type LogFile struct {
+	Filename string
+	// megabytes
+	MaxSize int
+	// max backups
+	MaxBackups int
+	// days
+	MaxAge int
+}
+
 type LoggerOptions struct {
 	Level      Level
 	AddSource  bool
 	IsJSON     bool
 	SetFile    bool
+	LogFile    LogFile
 	SetDefault bool
 }
 
 type LoggerOption func(*LoggerOptions)
 
 // WithLevel logger option sets the log level, if not set, the default level is Info.
-// debug, info, warn, error
+// debug, info, warn, error.
 func WithLevel(level string) LoggerOption {
 	return func(o *LoggerOptions) {
 		var l Level
@@ -110,9 +118,10 @@ func WithIsJSON(isJSON bool) LoggerOption {
 }
 
 // WithSetFile logger option sets the set file option, which will set the created logger in file.
-func WithSetFile(setFile bool) LoggerOption {
+func WithSetFile(setFile bool, logFile LogFile) LoggerOption {
 	return func(o *LoggerOptions) {
 		o.SetFile = setFile
+		o.LogFile = logFile
 	}
 }
 
