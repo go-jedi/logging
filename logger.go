@@ -83,6 +83,7 @@ type LoggerOptions struct {
 type LoggerOption func(*LoggerOptions)
 
 // WithLevel logger option sets the log level, if not set, the default level is Info.
+// debug, info, warn, error
 func WithLevel(level string) LoggerOption {
 	return func(o *LoggerOptions) {
 		var l Level
